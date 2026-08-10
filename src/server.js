@@ -9,6 +9,11 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }));
 app.use(express.json());
 
 // Ruta de salud, para confirmar que el servidor y la DB están vivos
+app.use("/api/noticias", require("./routes/noticiaRoutes"));
+app.use("/api/miembros", require("./routes/miembroRoutes"));
+app.use("/api/voluntarios", require("./routes/voluntarioRoutes"));
+app.use("/api/eventos", require("./routes/eventoRoutes"));
+app.use("/api/encuestas", require("./routes/encuestaRoutes"));
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
