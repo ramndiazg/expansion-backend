@@ -14,6 +14,8 @@ app.use("/api/miembros", require("./routes/miembroRoutes"));
 app.use("/api/voluntarios", require("./routes/voluntarioRoutes"));
 app.use("/api/eventos", require("./routes/eventoRoutes"));
 app.use("/api/encuestas", require("./routes/encuestaRoutes"));
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/comentarios", require("./routes/comentarioRoutes"));
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });

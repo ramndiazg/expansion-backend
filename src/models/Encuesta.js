@@ -17,6 +17,7 @@ const encuestaSchema = new mongoose.Schema(
     },
     activa: { type: Boolean, default: true },
     fechaCierre: { type: Date },
+    creadoPor: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario" },
   },
   { timestamps: true },
 );

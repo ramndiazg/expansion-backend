@@ -12,7 +12,9 @@ const noticiaSchema = new mongoose.Schema(
     },
     resumen: { type: String, required: true, maxlength: 300 },
     contenido: { type: String, required: true },
-    imagenDestacada: { type: String }, // URL de la imagen
+    imagenDestacada: { type: String },
+    imagenesAdicionales: [{ type: String }],
+    videoUrl: { type: String },
     categoria: {
       type: String,
       enum: ["comunicado", "actividad", "declaracion", "en_los_medios"],
@@ -30,7 +32,6 @@ const noticiaSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Genera el slug automáticamente a partir del título si no viene definido
 noticiaSchema.pre("validate", function () {
   if (!this.slug && this.titulo) {
     this.slug = this.titulo

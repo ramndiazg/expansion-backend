@@ -24,14 +24,17 @@ exports.getOne = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const encuesta = await Encuesta.create(req.body);
+    const encuesta = await Encuesta.create({
+      ...req.body,
+      creadoPor: req.auth.id,
+    });
     res.status(201).json(encuesta);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
-// Votar por una opción específica dentro de la encuesta
+// Votar — público, sin autenticación
 exports.votar = async (req, res) => {
   try {
     const encuesta = await Encuesta.findOneAndUpdate(
@@ -47,11 +50,42 @@ exports.votar = async (req, res) => {
   }
 };
 
-exports.remove = async (req, res) => {
+exports.cerrar = async (req, res) => {
   try {
-    const encuesta = await Encuesta.findByIdAndDelete(req.params.id);
+    const encuesta = await Encuesta.findById(req.params.id);
     if (!encuesta)
       return res.status(404).json({ error: "Encuesta no encontrada" });
+
+    const esDuena = encuesta.creadoPor?.toString() === req.auth.id;
+    if (req.auth.rol !== "admin" && !esDuena) {
+      return res
+        .status(403)
+        .json({ error: "Solo puedes cerrar tus propias encuestas" });
+    }
+
+    encuesta.activa = false;
+    encuesta.fechaCierre = new Date();
+    await encuesta.save();
+    res.json(encuesta);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+exports.remove = async (req, res) => {
+  try {
+    const encuesta = await Encuesta.findById(req.params.id);
+    if (!encuesta)
+      return res.status(404).json({ error: "Encuesta no encontrada" });
+
+    const esDuena = encuesta.creadoPor?.toString() === req.auth.id;
+    if (req.auth.rol !== "admin" && !esDuena) {
+      return res
+        .status(403)
+        .json({ error: "Solo puedes eliminar tus propias encuestas" });
+    }
+
+    await encuesta.deleteOne();
     res.json({ mensaje: "Encuesta eliminada" });
   } catch (err) {
     res.status(500).json({ error: err.message });

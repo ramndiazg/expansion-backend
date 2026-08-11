@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const miembroSchema = new mongoose.Schema(
   {
@@ -15,7 +16,8 @@ const miembroSchema = new mongoose.Schema(
     telefono: { type: String, required: true, trim: true },
     provincia: { type: String, required: true },
     municipio: { type: String },
-    sectorInteres: { type: String }, // ej: juventud, mujeres, comunicaciones, etc.
+    sectorInteres: { type: String },
+    passwordHash: { type: String, required: true }, // texto plano al crear, el hook lo hashea
     estado: {
       type: String,
       enum: ["pendiente", "aprobado", "rechazado"],
@@ -24,5 +26,11 @@ const miembroSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+miembroSchema.pre("save", async function () {
+  if (this.isModified("passwordHash")) {
+    this.passwordHash = await bcrypt.hash(this.passwordHash, 10);
+  }
+});
 
 module.exports = mongoose.model("Miembro", miembroSchema);
