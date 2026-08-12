@@ -8,6 +8,7 @@ const {
 } = require("../middleware/auth");
 
 router.get("/noticia/:noticiaId", comentarioController.getAprobadosPorNoticia);
+router.get("/mios", verifyToken, requireMiembro, comentarioController.getMios);
 router.post("/", verifyToken, requireMiembro, comentarioController.create);
 router.get(
   "/pendientes",

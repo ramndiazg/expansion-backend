@@ -57,3 +57,14 @@ exports.moderar = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+exports.getMios = async (req, res) => {
+  try {
+    const comentarios = await Comentario.find({ miembro: req.auth.id })
+      .populate("noticia", "titulo slug")
+      .sort({ createdAt: -1 });
+    res.json(comentarios);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

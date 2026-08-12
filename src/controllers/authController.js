@@ -64,3 +64,31 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.cambiarPassword = async (req, res) => {
+  try {
+    const { passwordActual, passwordNueva } = req.body;
+    if (!passwordNueva || passwordNueva.length < 6) {
+      return res.status(400).json({
+        error: "La nueva contraseña debe tener al menos 6 caracteres",
+      });
+    }
+
+    const Modelo = req.auth.tipo === "usuario" ? Usuario : Miembro;
+    const cuenta = await Modelo.findById(req.auth.id);
+    if (!cuenta) return res.status(404).json({ error: "Cuenta no encontrada" });
+
+    const valido = await bcrypt.compare(passwordActual, cuenta.passwordHash);
+    if (!valido)
+      return res
+        .status(401)
+        .json({ error: "La contraseña actual no es correcta" });
+
+    cuenta.passwordHash = passwordNueva; // el hook pre('save') del modelo la hashea
+    await cuenta.save();
+
+    res.json({ mensaje: "Contraseña actualizada" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
