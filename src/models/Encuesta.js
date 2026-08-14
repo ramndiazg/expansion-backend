@@ -31,14 +31,11 @@ const encuestaSchema = new mongoose.Schema(
     activa: { type: Boolean, default: true },
     fechaCierre: { type: Date },
     creadoPor: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario" },
-    votantes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Miembro" }],
+    votantes: [{ type: String }],
   },
   { timestamps: true },
 );
 
-// Autogenera el slug desde la pregunta si no se envía uno.
-// Hook async sin `next` (Mongoose 9.x no lo invoca como parámetro — mismo
-// patrón aplicado ya en Noticia.js).
 encuestaSchema.pre("validate", async function () {
   if (this.slug || !this.pregunta) return;
 

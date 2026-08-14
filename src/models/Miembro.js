@@ -1,11 +1,23 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
+const CEDULA_REGEX = /^\d{3}-\d{7}-\d{1}$/;
+
 const miembroSchema = new mongoose.Schema(
   {
     nombre: { type: String, required: true, trim: true },
     apellido: { type: String, required: true, trim: true },
-    cedula: { type: String, required: true, unique: true, trim: true },
+    cedula: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      validate: {
+        validator: (v) => CEDULA_REGEX.test(v),
+        message: (props) =>
+          `"${props.value}" no es un formato de cédula válido. Debe ser XXX-XXXXXXX-X (ej. 001-1566974-2)`,
+      },
+    },
     email: {
       type: String,
       required: true,
@@ -21,7 +33,7 @@ const miembroSchema = new mongoose.Schema(
     estado: {
       type: String,
       enum: ["pendiente", "aprobado", "rechazado"],
-      default: "pendiente",
+      default: "aprobado",
     },
   },
   { timestamps: true },

@@ -1,33 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const encuestaController = require("../controllers/encuestaController");
-const {
-  verifyToken,
-  requireRolUsuario,
-  requireMiembro,
-} = require("../middleware/auth");
+const { verifyToken, requireRolUsuario } = require("../middleware/auth");
 
 router.get("/", encuestaController.getAll);
 router.get("/slug/:slug", encuestaController.getBySlug);
 router.get("/:id", encuestaController.getOne);
-router.get(
-  "/:id/mi-estado",
-  verifyToken,
-  requireMiembro,
-  encuestaController.miEstado,
-);
 router.post(
   "/",
   verifyToken,
   requireRolUsuario("admin", "publicador"),
   encuestaController.create,
 );
-router.post(
-  "/:id/votar/:opcionId",
-  verifyToken,
-  requireMiembro,
-  encuestaController.votar,
-);
+router.post("/:id/votar/:opcionId", encuestaController.votar);
 router.put(
   "/:id/cerrar",
   verifyToken,

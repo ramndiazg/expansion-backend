@@ -27,6 +27,16 @@ exports.create = async (req, res) => {
     const miembro = await Miembro.create(req.body);
     res.status(201).json(miembro);
   } catch (err) {
+    if (err.code === 11000) {
+      const campo = Object.keys(err.keyPattern || {})[0] || "dato";
+      const mensajes = {
+        cedula: "Esa cédula ya está registrada",
+        email: "Ese email ya está registrado",
+      };
+      return res
+        .status(409)
+        .json({ error: mensajes[campo] || `${campo} ya está registrado` });
+    }
     res.status(400).json({ error: err.message });
   }
 };
@@ -41,6 +51,16 @@ exports.update = async (req, res) => {
       return res.status(404).json({ error: "Miembro no encontrado" });
     res.json(miembro);
   } catch (err) {
+    if (err.code === 11000) {
+      const campo = Object.keys(err.keyPattern || {})[0] || "dato";
+      const mensajes = {
+        cedula: "Esa cédula ya está registrada",
+        email: "Ese email ya está registrado",
+      };
+      return res
+        .status(409)
+        .json({ error: mensajes[campo] || `${campo} ya está registrado` });
+    }
     res.status(400).json({ error: err.message });
   }
 };

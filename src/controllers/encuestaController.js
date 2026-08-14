@@ -36,19 +36,6 @@ exports.getBySlug = async (req, res) => {
   }
 };
 
-// Le dice al frontend si el Miembro logueado ya votó en esta encuesta
-exports.miEstado = async (req, res) => {
-  try {
-    const encuesta = await Encuesta.findById(req.params.id).select("votantes");
-    if (!encuesta)
-      return res.status(404).json({ error: "Encuesta no encontrada" });
-    const yaVoto = encuesta.votantes.some((m) => m.toString() === req.auth.id);
-    res.json({ yaVoto });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
 exports.create = async (req, res) => {
   try {
     const encuesta = await Encuesta.create({
@@ -61,9 +48,14 @@ exports.create = async (req, res) => {
   }
 };
 
-// Votar — requiere sesión de Miembro (decisión sesión 11), un voto por Miembro
+// Votar — abierto a cualquiera, protegido por un ID anónimo generado en el navegador
 exports.votar = async (req, res) => {
   try {
+    const { votanteId } = req.body;
+    if (!votanteId) {
+      return res.status(400).json({ error: "Falta identificador de votante" });
+    }
+
     const encuesta = await Encuesta.findById(req.params.id);
     if (!encuesta)
       return res.status(404).json({ error: "Encuesta no encontrada" });
@@ -72,8 +64,7 @@ exports.votar = async (req, res) => {
       return res.status(400).json({ error: "Esta encuesta ya está cerrada" });
     }
 
-    const yaVoto = encuesta.votantes.some((m) => m.toString() === req.auth.id);
-    if (yaVoto) {
+    if (encuesta.votantes.includes(votanteId)) {
       return res.status(409).json({ error: "Ya votaste en esta encuesta" });
     }
 
@@ -83,10 +74,11 @@ exports.votar = async (req, res) => {
     }
 
     opcion.votos += 1;
-    encuesta.votantes.push(req.auth.id);
+    encuesta.votantes.push(votanteId);
     await encuesta.save();
 
-    res.json(encuesta);
+    const { votantes, ...encuestaSinVotantes } = encuesta.toObject();
+    res.json(encuestaSinVotantes);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
