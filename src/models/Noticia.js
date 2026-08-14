@@ -14,7 +14,6 @@ const noticiaSchema = new mongoose.Schema(
     contenido: { type: String, required: true },
     imagenDestacada: { type: String },
     imagenesAdicionales: [{ type: String }],
-    videoUrl: { type: String },
     categoria: {
       type: String,
       enum: ["comunicado", "actividad", "declaracion", "en_los_medios"],
