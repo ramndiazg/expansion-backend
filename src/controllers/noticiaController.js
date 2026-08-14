@@ -5,6 +5,14 @@ exports.getAll = async (req, res) => {
     const filtro = {};
     if (req.query.estado) filtro.estado = req.query.estado;
     if (req.query.categoria) filtro.categoria = req.query.categoria;
+    if (req.query.q) {
+      const regex = new RegExp(req.query.q.trim(), "i");
+      filtro.$or = [
+        { titulo: regex },
+        { resumen: regex },
+        { contenido: regex },
+      ];
+    }
     const noticias = await Noticia.find(filtro).sort({ createdAt: -1 });
     res.json(noticias);
   } catch (err) {
